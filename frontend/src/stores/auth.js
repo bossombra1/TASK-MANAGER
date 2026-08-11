@@ -21,6 +21,14 @@ export const useAuthStore = defineStore('auth', {
       localStorage.setItem('user', JSON.stringify(this.user));
     },
 
+    async register(organizationName, nom, email, password) {
+      const response = await api.post('/auth/register', { organizationName, nom, email, password });
+      this.token = response.data.token;
+      this.user = response.data.user;
+      localStorage.setItem('token', this.token);
+      localStorage.setItem('user', JSON.stringify(this.user));
+    },
+
     updateUser(user) {
       this.user = { ...this.user, ...user };
       localStorage.setItem('user', JSON.stringify(this.user));

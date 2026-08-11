@@ -8,6 +8,16 @@ const messages = {
   'any.required': 'Ce champ est requis',
 };
 
+export const registerSchema = Joi.object({
+  organizationName: Joi.string().trim().min(2).max(255),
+  nom: Joi.string().trim().min(2).max(100),
+  email: Joi.string().email(),
+  password: Joi.string().min(8).messages({
+    'string.min': 'Le mot de passe doit contenir au moins 8 caractères',
+  }),
+}).fork(['organizationName', 'nom', 'email', 'password'], (schema) => schema.required())
+  .messages(messages);
+
 export const loginSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().required(),
