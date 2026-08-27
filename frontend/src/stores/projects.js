@@ -49,9 +49,10 @@ async deleteProject(id) {
   delete this.details[id];
 },
 
-    async createProject(payload) {
+   async createProject(payload) {
   const { data } = await api.post('/admin/projects', payload);
   const project = data.project;
+  project.planWarning = data.planWarning;
   this.projects.unshift(project);
   return project;
 },

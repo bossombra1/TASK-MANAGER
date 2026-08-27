@@ -3,12 +3,13 @@ import { authenticate } from '../middlewares/auth.js';
 import { validate } from '../middlewares/validate.js';
 import { registerSchema, loginSchema, updateProfileSchema, changePasswordSchema } from '../validation/authSchemas.js';
 import { uploadAvatar } from '../config/upload.js';
-import { register, login, updateProfile, changePassword, updateAvatar } from '../controllers/authController.js';
+import { register, login, getMe, updateProfile, changePassword, updateAvatar } from '../controllers/authController.js';
 
 const router = express.Router();
 
 router.post('/register', validate(registerSchema), register);
 router.post('/login', validate(loginSchema), login);
+router.get('/me', authenticate, getMe);
 router.put('/me', authenticate, validate(updateProfileSchema), updateProfile);
 router.put('/change-password', authenticate, validate(changePasswordSchema), changePassword);
 

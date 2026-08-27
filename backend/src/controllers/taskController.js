@@ -205,38 +205,26 @@ export const updateTaskStatus = async (req, res) => {
 };
 
 export const updateTask = async (req, res) => {
-  // Fonction contrôleur : met à jour les champs modifiables d'une tâche (hors statut)
   const { id } = req.params;
-  // Extrait l'id de la tâche depuis les paramètres de l'URL
-  const { title, description, priority, due_date } = req.body;
-  // Extrait les champs potentiellement fournis dans le corps de la requête
+  const { title, description, priority, due_date, start_date } = req.body;
 
   try {
     const existing = await db.query('SELECT project_id FROM tasks WHERE id = $1 AND organization_id = $2', [id, req.user.organizationId]);
-    // Récupère l'id du projet parent de la tâche, pour vérifier ensuite les droits d'accès ; $1 = id de la tâche
     if (existing.rows.length === 0) {
-      // Si aucune ligne retournée, la tâche n'existe pas
       return res.status(404).json({ message: 'Tâche introuvable' });
-      // Renvoie une erreur 404 et arrête l'exécution de la fonction
     }
 
     if (req.user.role !== 'admin') {
-      // Si l'utilisateur connecté n'est pas admin, on vérifie ses droits sur le projet de cette tâche
       const authorized = await isProjectMember(db, existing.rows[0].project_id, req.user.id, req.user.organizationId);
-      // Appelle le service d'autorisation avec le project_id trouvé et l'id de l'utilisateur connecté
       if (!authorized) {
-        // Si non autorisé
         return res.status(403).json({ message: "Vous n'avez pas accès à cette tâche" });
-        // Renvoie une erreur 403 et arrête l'exécution de la fonction
       }
 
-      // Un membre ne peut modifier ni la priorité ni la date d'échéance
-      if (priority !== undefined || due_date !== undefined) {
-        // Si l'utilisateur non-admin tente de fournir une priorité ou une date d'échéance dans sa requête
+      // Un membre ne peut modifier ni la priorité, ni la date de début, ni la date d'échéance
+      if (priority !== undefined || due_date !== undefined || start_date !== undefined) {
         return res.status(403).json({
-          message: "Seul l'administrateur peut modifier la priorité ou la date d'échéance",
+          message: "Seul l'administrateur peut modifier la priorité ou les dates",
         });
-        // Renvoie une erreur 403 et arrête l'exécution de la fonction
       }
     }
 
@@ -245,20 +233,13 @@ export const updateTask = async (req, res) => {
         title = COALESCE($1, title),
         description = COALESCE($2, description),
         priority = COALESCE($3, priority),
-        due_date = COALESCE($4, due_date)
-       WHERE id = $5 AND organization_id = $6 RETURNING *`,
-      // UPDATE : met à jour chaque champ uniquement si une nouvelle valeur est fournie
-      // COALESCE($1, title) : garde le titre existant si $1 est NULL/undefined, sinon applique la nouvelle valeur
-      // (même logique pour description, priority, due_date)
-      // WHERE id = $5 : cible la tâche par son id
-      // RETURNING * : renvoie la ligne complète après mise à jour
-      [title, description, priority, due_date, id, req.user.organizationId]
-      // Paramètres liés dans l'ordre : $1 = title, $2 = description, $3 = priority, $4 = due_date, $5 = id
+        due_date = COALESCE($4, due_date),
+        start_date = COALESCE($5, start_date)
+       WHERE id = $6 AND organization_id = $7 RETURNING *`,
+      [title, description, priority, due_date, start_date, id, req.user.organizationId]
     );
     res.json({ message: 'Tâche mise à jour', task: result.rows[0] });
-    // Renvoie au client un message de confirmation et la tâche mise à jour
   } catch (error) {
     res.status(500).json({ message: 'Erreur mise à jour tâche', error: error.message });
-    // En cas d'erreur SQL ou d'exécution, renvoie un statut 500 avec le détail de l'exception
   }
 };

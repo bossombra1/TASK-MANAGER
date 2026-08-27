@@ -14,6 +14,13 @@ const routes = [
   { path: '/notifications', name: 'notifications', component: () => import('../views/NotificationsView.vue') },
   { path: '/profile', name: 'profile', component: () => import('../views/ProfileView.vue') },
   { path: '/admin/users', name: 'admin-users', component: () => import('../views/AdminUsersView.vue'), meta: { requiresAdmin: true } },
+
+  { path: '/super-admin', name: 'super-admin-dashboard', component: () => import('../views/superadmin/SuperAdminDashboardView.vue'), meta: { requiresSuperAdmin: true } },
+  { path: '/super-admin/organizations', name: 'super-admin-organizations', component: () => import('../views/superadmin/SuperAdminOrganizationsView.vue'), meta: { requiresSuperAdmin: true } },
+  { path: '/super-admin/organizations/:id', name: 'super-admin-organization-detail', component: () => import('../views/superadmin/SuperAdminOrganizationDetailView.vue'), meta: { requiresSuperAdmin: true } },
+  { path: '/super-admin/logs', name: 'super-admin-logs', component: () => import('../views/superadmin/SuperAdminLogsView.vue'), meta: { requiresSuperAdmin: true } },
+  { path: '/super-admin/health', name: 'super-admin-health', component: () => import('../views/superadmin/SuperAdminHealthView.vue'), meta: { requiresSuperAdmin: true } },
+
   { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue'), meta: { public: true } },
 ];
 
@@ -22,12 +29,31 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
+  try {
+    console.debug('[router.beforeEach] navigating from', from.fullPath, 'to', to.fullPath);
+  } catch (e) {}
   const auth = useAuthStore();
-  if (to.meta.public) return next();
-  if (!auth.isAuthenticated) return next({ name: 'login' });
-  if (to.meta.requiresAdmin && !auth.isAdmin) return next({ name: 'projects' });
-  next();
+  if (to.meta.public) return;
+  if (!auth.isAuthenticated) return { name: 'login' };
+  if (to.meta.requiresAdmin && !auth.isAdmin) return { name: 'projects' };
+  if (to.meta.requiresSuperAdmin && !auth.isSuperAdmin) return { name: 'dashboard' };
+  // Empêche un super admin d'atterrir sur les vues classiques (pas de projet/organisation à lui)
+  if (auth.isSuperAdmin && !to.path.startsWith('/super-admin') && to.name !== 'login') {
+    return { name: 'super-admin-dashboard' };
+  }
+});
+
+router.afterEach((to, from) => {
+  try {
+    console.debug('[router.afterEach] now at', to.fullPath);
+  } catch (e) {}
+});
+
+router.onError((err) => {
+  // capture router errors
+  // eslint-disable-next-line no-console
+  console.error('[router.onError]', err);
 });
 
 export default router;

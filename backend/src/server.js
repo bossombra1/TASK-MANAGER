@@ -28,6 +28,9 @@ import taskRoutes from './routes/taskRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
 // Importe le routeur des routes liées aux commentaires
 
+import superAdminRoutes from './routes/superAdminRoutes.js';
+// Importe le routeur des routes liées aux super admin
+
 import notificationRoutes from './routes/notificationRoutes.js';
 // Importe le routeur des routes liées aux notifications
 
@@ -74,6 +77,9 @@ app.use('/api/tasks', taskRoutes);
 
 app.use('/api/comments', commentRoutes);
 // Monte le routeur des commentaires sur le préfixe /api/comments
+
+app.use('/api/super-admin', superAdminRoutes);
+// Monte le routeur des super admin sur le préfixe /api/super-admin
 
 app.use('/api/notifications', notificationRoutes);
 // Monte le routeur des notifications sur le préfixe /api/notifications

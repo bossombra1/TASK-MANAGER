@@ -17,9 +17,9 @@
         <div class="role">{{ auth.isAdmin ? 'Administrateur' : 'Membre' }}</div>
         <div class="email">{{ auth.user?.email }}</div>
       </div>
-      <button class="btn btn-ghost" style="width:auto;" @click="triggerFileInput" :disabled="uploadingAvatar">
+      <Button class="btn btn-ghost" style="width:auto;" @click="triggerFileInput" :disabled="uploadingAvatar">
         {{ uploadingAvatar ? 'Envoi...' : 'Changer la photo' }}
-      </button>
+      </Button>
       <input ref="fileInput" type="file" accept="image/png,image/jpeg,image/webp" style="display:none" @change="handleFileChange" />
     </div>
     <p v-if="avatarError" style="color:var(--danger); font-size:12.5px; margin-top:-14px; margin-bottom:16px;">{{ avatarError }}</p>
@@ -28,15 +28,19 @@
       <h3>Informations personnelles</h3>
       <form @submit.prevent="handleSaveProfile">
         <div class="form-row">
-          <div class="form-group"><label>Nom complet</label><input type="text" v-model="profileForm.nom" required /></div>
-          <div class="form-group"><label>Adresse e-mail</label><input type="email" v-model="profileForm.email" required /></div>
+          <FormField label="Nom complet">
+            <Input type="text" v-model="profileForm.nom" required />
+          </FormField>
+          <FormField label="Adresse e-mail">
+            <Input type="email" v-model="profileForm.email" required />
+          </FormField>
         </div>
         <p v-if="profileError" style="color:var(--danger); font-size:12.5px; margin-top:8px;">{{ profileError }}</p>
         <p v-if="profileSuccess" style="color:var(--success); font-size:12.5px; margin-top:8px;">{{ profileSuccess }}</p>
         <div class="settings-foot">
-          <button type="submit" class="btn btn-primary" style="width:auto;" :disabled="savingProfile">
+          <Button type="submit" class="btn btn-primary" style="width:auto;" :disabled="savingProfile">
             {{ savingProfile ? 'Enregistrement...' : 'Enregistrer' }}
-          </button>
+          </Button>
         </div>
       </form>
     </div>
@@ -44,26 +48,23 @@
     <div class="settings-card">
       <h3>Sécurité — changer le mot de passe</h3>
       <form @submit.prevent="handleChangePassword">
-        <div class="form-group">
-          <label>Mot de passe actuel</label>
-          <input type="password" v-model="passwordForm.current" placeholder="••••••••" required />
-        </div>
+        <FormField label="Mot de passe actuel">
+          <Input type="password" v-model="passwordForm.current" placeholder="••••••••" required />
+        </FormField>
         <div class="form-row">
-          <div class="form-group">
-            <label>Nouveau mot de passe</label>
-            <input type="password" v-model="passwordForm.next" placeholder="8 caractères minimum" required minlength="8" />
-          </div>
-          <div class="form-group">
-            <label>Confirmer le mot de passe</label>
-            <input type="password" v-model="passwordForm.confirm" placeholder="••••••••" required />
-          </div>
+          <FormField label="Nouveau mot de passe">
+            <Input type="password" v-model="passwordForm.next" placeholder="8 caractères minimum" required minlength="8" />
+          </FormField>
+          <FormField label="Confirmer le mot de passe">
+            <Input type="password" v-model="passwordForm.confirm" placeholder="••••••••" required />
+          </FormField>
         </div>
         <p v-if="passwordError" style="color:var(--danger); font-size:12.5px; margin-top:8px;">{{ passwordError }}</p>
         <p v-if="passwordSuccess" style="color:var(--success); font-size:12.5px; margin-top:8px;">{{ passwordSuccess }}</p>
         <div class="settings-foot">
-          <button type="submit" class="btn btn-primary" style="width:auto;" :disabled="savingPassword">
+          <Button type="submit" class="btn btn-primary" style="width:auto;" :disabled="savingPassword">
             {{ savingPassword ? 'Mise à jour...' : 'Mettre à jour le mot de passe' }}
-          </button>
+          </Button>
         </div>
       </form>
     </div>
@@ -73,8 +74,8 @@
       <p style="font-size:13px; color:var(--text-2); margin-bottom:14px;">
         Vous êtes connecté avec {{ auth.user?.email }}.
       </p>
-      <div class="settings-foot" style="justify-content:flex-start;">
-        <button class="btn btn-ghost" style="width:auto;" @click="handleLogout">Se déconnecter</button>
+        <div class="settings-foot" style="justify-content:flex-start;">
+        <Button class="btn btn-ghost" style="width:auto;" @click="handleLogout">Se déconnecter</Button>
       </div>
     </div>
   </AppLayout>
@@ -82,11 +83,15 @@
 
 <script setup>
 import { ref } from 'vue';
-import AppLayout from '../components/AppLayout.vue';
+import { useRouter } from 'vue-router';
+import AppLayout from '../components/templates/AppLayout.vue';
 import { useAuthStore } from '../stores/auth';
 import api from '../services/api';
 import { colorFor, initials } from '../utils/colors';
 import { resolveAssetUrl } from '../utils/assets';
+import Button from '../components/atoms/Button.vue';
+import Input from '../components/atoms/Input.vue';
+import FormField from '../components/molecules/FormField.vue';
 
 const auth = useAuthStore();
 
@@ -175,8 +180,9 @@ const handleChangePassword = async () => {
 };
 
 // ---------- Session ----------
+const router = useRouter();
 const handleLogout = () => {
   auth.logout();
-  window.location.href = '/login';
+  router.push('/login');
 };
 </script>

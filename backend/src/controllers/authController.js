@@ -30,7 +30,7 @@ export const register = async (req, res) => {
     }
 
     const slug = organizationName.trim().toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // retire les accents
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') 
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
 
@@ -63,7 +63,15 @@ export const register = async (req, res) => {
     res.status(201).json({
       message: 'Organisation et compte administrateur créés avec succès',
       token,
-      user: { ...user, avatar_url: null }
+      user: {
+        id: user.id,
+        nom: user.nom,
+        email: user.email,
+        role: user.role,
+        avatar_url: null,
+        organizationName: organizationName.trim(),
+        organizationSlug: slug
+      }
     });
   } catch (error) {
     await client.query('ROLLBACK');
@@ -78,47 +86,65 @@ export const register = async (req, res) => {
 
 // --- CONNEXION (LOGIN) ---
 export const login = async (req, res) => {
-  // Récupère l'email et le mot de passe tapés par l'utilisateur.
   const { email, password } = req.body;
 
   try {
-    // 1. Cherche l'utilisateur en base de données via son email.
-    const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    const result = await db.query(
+      `SELECT
+         users.id,
+         users.nom,
+         users.email,
+         users.password_hash,
+         users.role,
+         users.avatar_url,
+         users.organization_id,
+         users.is_active,
+         organizations.name AS organization_name,
+         organizations.slug AS organization_slug,
+         organizations.status AS organization_status
+       FROM users
+       LEFT JOIN organizations ON users.organization_id = organizations.id
+       WHERE users.email = $1`,
+      [email]
+    );
     const user = result.rows[0];
 
-    // 2. Si aucun utilisateur n'est trouvé, on renvoie une erreur 401 (Non autorisé).
-    // Note : On utilise le même message vague pour l'email ou le mot de passe pour des raisons de sécurité 
-    // (pour ne pas indiquer à un pirate quel élément est valide).
     if (!user) {
       return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
     }
 
-    // 3. Vérifie si le compte a été banni ou désactivé par un admin.
-    if (!user.is_active) {
+    if (user.is_active === false) {
       return res.status(403).json({ message: 'Compte désactivé' });
     }
 
-    // 4. Compare le mot de passe en clair (password) avec le hash stocké en base (user.password_hash).
+    // Bloque tous les utilisateurs d'une entreprise suspendue (sauf le super admin, qui n'a pas d'organization_id)
+    if (user.organization_id && user.organization_status === 'suspended') {
+      return res.status(403).json({ message: 'Votre entreprise a été suspendue. Contactez le support.' });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
       return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
     }
 
-    // 5. Génération du JWT (JSON Web Token). C'est la "carte d'identité" numérique de l'utilisateur.
     const token = jwt.sign(
-      // Le "payload" : les données utiles qu'on embarque dans le token.
       { id: user.id, email: user.email, role: user.role, organizationId: user.organization_id },
-      // La clé secrète (définie dans ton .env) qui sert à signer le token pour éviter qu'il soit falsifié.
       process.env.JWT_SECRET,
-      // Le token expirera automatiquement dans 8 heures (sécurité).
       { expiresIn: '8h' }
     );
 
-    // 6. On renvoie le token au client (qui le stockera) avec les infos basiques de l'utilisateur.
     res.json({
       message: 'Connexion réussie',
       token,
-      user: { id: user.id, nom: user.nom, email: user.email, role: user.role, avatar_url: user.avatar_url }
+      user: {
+        id: user.id,
+        nom: user.nom,
+        email: user.email,
+        role: user.role,
+        avatar_url: user.avatar_url,
+        organizationName: user.organization_name,
+        organizationSlug: user.organization_slug,
+      }
     });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la connexion', error: error.message });
@@ -126,6 +152,46 @@ export const login = async (req, res) => {
 };
 
 // --- MISE À JOUR DU PROFIL ---
+export const getMe = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const result = await db.query(
+      `SELECT
+         users.id,
+         users.nom,
+         users.email,
+         users.role,
+         users.avatar_url,
+         organizations.name AS organization_name,
+         organizations.slug AS organization_slug
+       FROM users
+       LEFT JOIN organizations ON users.organization_id = organizations.id
+       WHERE users.id = $1`,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Utilisateur introuvable' });
+    }
+
+    const user = result.rows[0];
+    res.json({
+      user: {
+        id: user.id,
+        nom: user.nom,
+        email: user.email,
+        role: user.role,
+        avatar_url: user.avatar_url,
+        organizationName: user.organization_name,
+        organizationSlug: user.organization_slug
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la récupération de l'utilisateur", error: error.message });
+  }
+};
+
 export const updateProfile = async (req, res) => {
   const { nom, email } = req.body;
   // ATTENTION : req.user.id vient forcément d'un middleware placé avant ce contrôleur !

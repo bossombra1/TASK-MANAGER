@@ -8,14 +8,12 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="form-group">
-          <label>Nom du projet</label>
-          <input type="text" v-model="form.title" />
-        </div>
-        <div class="form-group">
-          <label>Description</label>
-          <textarea v-model="form.description"></textarea>
-        </div>
+        <FormField label="Nom du projet">
+          <Input type="text" v-model="form.title" />
+        </FormField>
+        <FormField label="Description">
+          <Textarea v-model="form.description" />
+        </FormField>
         <div class="form-group" style="margin-bottom:0;">
           <label>Couleur</label>
           <div class="color-swatches">
@@ -32,10 +30,10 @@
         <p v-if="error" style="color:var(--danger); font-size:12.5px; margin-top:12px;">{{ error }}</p>
       </div>
       <div class="modal-foot">
-        <button class="btn btn-ghost" @click="$emit('close')">Annuler</button>
-        <button class="btn btn-primary" style="width:auto;" :disabled="!form.title.trim() || saving" @click="submit">
+        <Button class="btn btn-ghost" @click="$emit('close')">Annuler</Button>
+        <Button class="btn btn-primary" style="width:auto;" :disabled="!form.title.trim() || saving" @click="submit">
           {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
-        </button>
+        </Button>
       </div>
     </div>
   </div>
@@ -43,7 +41,11 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useProjectsStore } from '../stores/projects';
+import { useProjectsStore } from '../../stores/projects';
+import Button from '../atoms/Button.vue';
+import Input from '../atoms/Input.vue';
+import Textarea from '../atoms/Textarea.vue';
+import FormField from '../molecules/FormField.vue';
 
 const props = defineProps({
   project: { type: Object, required: true },

@@ -52,6 +52,7 @@ export const useTasksStore = defineStore('tasks', {
     async createTask(payload) {
   const { data } = await api.post('/admin/tasks', payload);
   const task = data.task;
+  task.planWarning = data.planWarning;
 
   if (!this.tasksByProject[payload.project_id]) this.tasksByProject[payload.project_id] = [];
   this.tasksByProject[payload.project_id].push(task);

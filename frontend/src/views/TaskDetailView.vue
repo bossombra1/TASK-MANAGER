@@ -12,7 +12,7 @@
 
       <div class="task-detail-layout">
         <div class="td-main">
-          <input
+          <Input
             class="td-title-input"
             v-model="form.title"
             @blur="saveField('title')"
@@ -21,13 +21,13 @@
 
           <div class="td-section">
             <div class="lbl">Description</div>
-            <textarea
+            <Textarea
               class="td-desc-input"
               v-model="form.description"
               @blur="saveField('description')"
               rows="4"
               placeholder="Aucune description"
-            ></textarea>
+            />
           </div>
 
           <div class="td-section">
@@ -59,11 +59,11 @@
             <div class="comment-input">
               <Avatar :user-id="auth.user?.id" :nom="auth.user?.nom" :avatar-url="auth.user?.avatar_url" :size="30" />
               <div class="comment-input-wrap">
-                <textarea
+                <Textarea
                   v-model="newComment"
                   placeholder="Ajouter un commentaire..."
                   @keydown.enter.exact.prevent="postComment"
-                ></textarea>
+                />
                 <button class="comment-submit" :disabled="!newComment.trim() || posting" @click="postComment">
                   {{ posting ? 'Envoi...' : 'Publier' }}
                 </button>
@@ -76,7 +76,7 @@
           <div class="side-row">
             <span class="lbl">Statut</span>
             <div class="select-fake">
-              <span class="badge" :class="statusBadge(form.status)">{{ statusLabel(form.status) }}</span>
+              <Badge :class="statusBadge(form.status)">{{ statusLabel(form.status) }}</Badge>
               <select v-model="form.status" @change="saveField('status')">
                 <option value="todo">À faire</option>
                 <option value="doing">En cours</option>
@@ -88,7 +88,7 @@
           <div class="side-row">
   <span class="lbl">Priorité</span>
   <div class="select-fake" :class="{ 'is-locked': !auth.isAdmin }">
-    <span class="badge" :class="priorityBadge(form.priority)">{{ priorityLabel(form.priority) }}</span>
+    <Badge :class="priorityBadge(form.priority)">{{ priorityLabel(form.priority) }}</Badge>
     <select
       v-model="form.priority"
       :disabled="!auth.isAdmin"
@@ -99,6 +99,21 @@
       <option value="medium">Moyenne</option>
       <option value="high">Haute</option>
     </select>
+  </div>
+</div>
+
+
+          <div class="side-row">
+  <span class="lbl">Début</span>
+  <div class="date-field" :class="{ 'is-locked': !auth.isAdmin }">
+    <svg class="date-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    <input
+      type="date"
+      v-model="form.start_date"
+      :disabled="!auth.isAdmin"
+      :title="!auth.isAdmin ? 'Réservé à l\'administrateur' : ''"
+      @change="saveField('start_date')"
+    />
   </div>
 </div>
 
@@ -130,9 +145,9 @@
               {{ a.nom }}
             </div>
             <span v-if="!(task.assignees || []).length" style="font-size:12.5px; color:var(--text-3);">Personne assigné</span>
-            <button v-if="auth.isAdmin" class="btn btn-ghost" style="width:100%; color:var(--danger); border-color:var(--danger-soft); margin-top:8px;" @click="handleDeleteTask">
+            <Button v-if="auth.isAdmin" class="btn btn-ghost" style="width:100%; color:var(--danger); border-color:var(--danger-soft); margin-top:8px;" @click="handleDeleteTask">
             Supprimer la tâche
-          </button>
+          </Button>
           </div>
 
         </div>
@@ -159,11 +174,11 @@
             </div>
           </div>
           <div class="modal-foot">
-            <button class="btn btn-ghost" @click="closeAssigneeModal">Annuler</button>
-            <button class="btn btn-primary" style="width:auto;" :disabled="!selectedAssigneeId || addingAssignee" @click="handleAddAssignee">
-              {{ addingAssignee ? 'Ajout...' : 'Ajouter' }}
-            </button>
-          </div>
+                  <Button class="btn btn-ghost" @click="closeAssigneeModal">Annuler</Button>
+                  <Button class="btn btn-primary" style="width:auto;" :disabled="!selectedAssigneeId || addingAssignee" @click="handleAddAssignee">
+                    {{ addingAssignee ? 'Ajout...' : 'Ajouter' }}
+                  </Button>
+                </div>
         </div>
       </div>
     </template>
@@ -173,12 +188,16 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import AppLayout from '../components/AppLayout.vue';
-import Avatar from '../components/Avatar.vue';
+import AppLayout from '../components/templates/AppLayout.vue';
+import Avatar from '../components/atoms/Avatar.vue';
 import api from '../services/api';
 import { useAuthStore } from '../stores/auth';
 import { useTasksStore } from '../stores/tasks';
 import { useProjectsStore } from '../stores/projects';
+import Button from '../components/atoms/Button.vue';
+import Badge from '../components/atoms/Badge.vue';
+import Input from '../components/atoms/Input.vue';
+import Textarea from '../components/atoms/Textarea.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -223,7 +242,7 @@ const comments = ref([]);
 const loading = ref(true);
 const posting = ref(false);
 const newComment = ref('');
-const form = ref({ title: '', description: '', status: 'todo', priority: 'low', due_date: '' });
+const form = ref({ title: '', description: '', status: 'todo', priority: 'low', start_date: '', due_date: '' });
 
 const statusBadge = (status) => ({ todo: 'badge-todo', doing: 'badge-progress', done: 'badge-done' }[status] || 'badge-todo');
 const statusLabel = (status) => ({ todo: 'À faire', doing: 'En cours', done: 'Terminé' }[status] || status);
@@ -277,6 +296,7 @@ const loadForm = (t) => {
     description: t.description || '',
     status: t.status,
     priority: t.priority,
+    start_date: t.start_date ? t.start_date.slice(0, 10) : '',
     due_date: t.due_date ? t.due_date.slice(0, 10) : '',
   };
 };
@@ -285,6 +305,7 @@ const fieldMap = {
   title: (v) => ({ title: v }),
   description: (v) => ({ description: v }),
   priority: (v) => ({ priority: v }),
+  start_date: (v) => ({ start_date: v || null }),
   due_date: (v) => ({ due_date: v || null }),
 };
 

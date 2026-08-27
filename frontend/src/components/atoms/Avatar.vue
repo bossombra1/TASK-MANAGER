@@ -7,8 +7,8 @@
 
 <script setup>
 import { computed } from 'vue';
-import { colorFor, initials } from '../utils/colors';
-import { resolveAvatarUrl } from '../utils/avatar';
+import { colorFor, initials } from '../../utils/colors';
+import { resolveAvatarUrl } from '../../utils/avatar';
 
 const props = defineProps({
   userId: { type: String, default: null },

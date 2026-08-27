@@ -2,7 +2,7 @@
   <div class="modal-overlay" @click.self="$emit('close')">
     <div class="modal-panel">
       <div class="modal-head">
-        <input v-model="form.title" class="modal-title-input" placeholder="Titre de la tâche" />
+        <Input v-model="form.title" class="modal-title-input" placeholder="Titre de la tâche" />
         <button class="modal-close" @click="$emit('close')">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
@@ -28,13 +28,13 @@
           </div>
           <div class="modal-field">
             <label>Échéance</label>
-            <input type="date" v-model="form.due_date" />
+            <Input type="date" v-model="form.due_date" />
           </div>
         </div>
 
         <div class="modal-field">
           <label>Description</label>
-          <textarea v-model="form.description" rows="4" placeholder="Aucune description"></textarea>
+          <Textarea v-model="form.description" rows="4" placeholder="Aucune description" />
         </div>
 
         <div class="modal-field">
@@ -67,8 +67,10 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import api from '../services/api';
-import { colorFor, initials } from '../utils/colors';
+import api from '../../services/api';
+import Input from '../atoms/Input.vue';
+import Textarea from '../atoms/Textarea.vue';
+import { colorFor, initials } from '../../utils/colors';
 
 const props = defineProps({ task: { type: Object, required: true } });
 const emit = defineEmits(['close', 'updated']);

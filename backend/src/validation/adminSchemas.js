@@ -99,6 +99,7 @@ export const createTaskSchema = Joi.object({
   priority: Joi.string().valid('low', 'medium', 'high').default('medium'),
   // "priority" : doit être 'low', 'medium' ou 'high' ; vaut 'medium' par défaut si absente
   due_date: Joi.date().iso().allow(null),
+ start_date: Joi.date().iso().allow(null),
   // "due_date" : doit être une date au format ISO si fournie, ou explicitement null
   assigned_user_ids: Joi.array().items(uuid).default([]),
   // "assigned_user_ids" : tableau d'UUID, vide par défaut si absent

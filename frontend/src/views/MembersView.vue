@@ -8,9 +8,9 @@
           <h1>Membres du projet</h1>
           <p>{{ project.title }} · {{ members.length }} membre{{ members.length > 1 ? 's' : '' }}</p>
         </div>
-        <button v-if="auth.isAdmin" class="btn btn-primary btn-add" style="width:auto" @click="openModal">
+        <Button v-if="auth.isAdmin" class="btn btn-primary btn-add" style="width:auto" @click="openModal">
           + Ajouter un membre
-        </button>
+        </Button>
       </div>
 
       <div v-for="member in members" :key="member.id" class="member-row">
@@ -46,10 +46,10 @@
             </div>
           </div>
           <div class="modal-foot">
-            <button class="btn btn-ghost" @click="closeModal">Annuler</button>
-            <button class="btn btn-primary" style="width:auto;" :disabled="!selectedUserId || adding" @click="handleAdd">
+            <Button class="btn btn-ghost" @click="closeModal">Annuler</Button>
+            <Button class="btn btn-primary" style="width:auto;" :disabled="!selectedUserId || adding" @click="handleAdd">
               {{ adding ? 'Ajout...' : 'Ajouter' }}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -60,10 +60,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import AppLayout from '../components/AppLayout.vue';
-import Avatar from '../components/Avatar.vue';
+import AppLayout from '../components/templates/AppLayout.vue';
+import Avatar from '../components/atoms/Avatar.vue';
 import api from '../services/api';
 import { useAuthStore } from '../stores/auth';
+import Button from '../components/atoms/Button.vue';
 
 const route = useRoute();
 const auth = useAuthStore();
