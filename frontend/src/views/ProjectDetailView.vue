@@ -582,4 +582,90 @@ onMounted(fetchData);
 @media (max-width: 860px) {
   .sk-board { grid-template-columns: 1fr; }
 }
+/* ===== RESPONSIVE ===== */
+@media (max-width: 860px) {
+  .enhanced-head h1 {
+    font-size: 21px;
+  }
+}
+
+@media (max-width: 640px) {
+  .project-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .project-head-info {
+    width: 100%;
+  }
+
+  .project-desc {
+    max-width: 100%;
+  }
+
+  .page-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .view-toggle {
+    flex: 1 1 auto;
+    display: flex;
+  }
+
+  .view-toggle button {
+    flex: 1;
+  }
+
+  .action-divider {
+    display: none;
+  }
+
+  .btn-add {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .member-section {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .empty-state {
+    padding: 40px 16px;
+  }
+
+  .empty-state.error-state {
+    min-height: 40vh;
+  }
+
+  .sk-head {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .sk-actions {
+    width: 100%;
+  }
+
+  .sk-btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 420px) {
+  .page-actions {
+    gap: 8px;
+  }
+
+  .enhanced-icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .enhanced-head h1 {
+    font-size: 19px;
+  }
+}
 </style>
