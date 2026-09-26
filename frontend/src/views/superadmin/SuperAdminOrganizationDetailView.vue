@@ -569,4 +569,8 @@ onMounted(async () => {
   .content-grid { grid-template-columns: 1fr; }
   .stat-grid { grid-template-columns: 1fr; }
 }
+@media (max-width: 480px) {
+  .member-row, .project-row { flex-wrap: wrap; row-gap: 6px; }
+  .member-status, .project-date { width: auto; margin-left: auto; }
+}
 </style>

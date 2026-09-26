@@ -677,4 +677,8 @@ const formatDate = (date) => new Date(date).toLocaleDateString('fr-FR', { day: '
   .org-row { grid-template-columns: 1.6fr 0.9fr 0.7fr 0.6fr 0.6fr 0.6fr 40px; }
   .org-row span:nth-child(7) { display: none; }
 }
+@media (max-width: 700px) {
+  .org-table { overflow-x: auto; }
+  .org-row { min-width: 640px; }
+}
 </style>

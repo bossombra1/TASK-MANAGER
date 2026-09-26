@@ -1,6 +1,6 @@
 <template>
   <div class="sa-app">
-    <aside class="sa-sidebar">
+    <aside class="sa-sidebar" :class="{ open: sidebarOpen }">
       <div class="sa-brand">
         <div class="sa-brand-mark">S</div>
         <div class="sa-brand-text">
@@ -51,8 +51,13 @@
       </div>
     </aside>
 
+    <div v-if="sidebarOpen" class="sa-backdrop" @click="sidebarOpen = false"></div>
+
     <div class="sa-main">
       <header class="sa-topbar">
+        <button class="sa-mobile-toggle" @click="sidebarOpen = !sidebarOpen" aria-label="Menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
         <h1 class="sa-title">{{ title }}</h1>
         <slot name="actions" />
       </header>
@@ -76,6 +81,7 @@ defineProps({
 const auth = useAuthStore();
 const router = useRouter();
 const isDark = ref(getTheme() === 'dark');
+const sidebarOpen = ref(false);
 
 const userInitial = computed(() => (auth.user?.nom || '?').charAt(0).toUpperCase());
 
@@ -305,8 +311,49 @@ const handleLogout = () => {
   overflow-y: visible;
 }
 
+.sa-mobile-toggle {
+  display: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border, #eee);
+  background: var(--surface, #fff);
+  color: var(--text-2, #555);
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.sa-backdrop {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .sa-sidebar { width: 210px; }
   .sa-content, .sa-topbar { padding: 20px; }
+}
+
+@media (max-width: 860px) {
+  .sa-sidebar {
+    position: fixed;
+    left: -270px;
+    top: 0;
+    z-index: 200;
+    transition: left 0.2s ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    width: 250px;
+  }
+  .sa-sidebar.open { left: 0; }
+  .sa-mobile-toggle { display: flex; }
+  .sa-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 150;
+  }
+  .sa-topbar { padding: 16px; }
+  .sa-content { padding: 16px; }
 }
 </style>
