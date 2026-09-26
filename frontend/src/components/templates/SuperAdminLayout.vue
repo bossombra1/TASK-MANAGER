@@ -343,6 +343,10 @@ const handleLogout = () => {
     transition: left 0.2s ease;
     box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     width: 250px;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .sa-sidebar.open { left: 0; }
   .sa-mobile-toggle { display: flex; }
