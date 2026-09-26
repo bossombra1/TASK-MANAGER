@@ -710,4 +710,6 @@ a{color:inherit; text-decoration:none;}
     width: 100%;
   }
 }
-.sidebar-backdrop{ display:none; }
+@media (min-width: 861px){
+  .sidebar-backdrop{ display:none; }
+}
