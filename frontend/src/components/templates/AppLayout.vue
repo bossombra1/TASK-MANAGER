@@ -15,6 +15,8 @@
       @update:sidebarOpen="(value) => (sidebarOpen = value)"
     />
 
+    <div v-if="sidebarOpen" class="sidebar-backdrop" @click="sidebarOpen = false"></div>
+
     <div class="main">
       <Topbar
         :title="title"

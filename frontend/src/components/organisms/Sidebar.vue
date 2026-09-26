@@ -15,20 +15,20 @@
 
     <nav class="nav-group">
       <span class="label">Espace</span>
-      <router-link to="/dashboard" class="nav-item" active-class="active">
+      <router-link to="/dashboard" class="nav-item" active-class="active" @click="$emit('update:sidebarOpen', false)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
         Tableau de bord
       </router-link>
-      <router-link to="/projects" class="nav-item" active-class="active">
+      <router-link to="/projects" class="nav-item" active-class="active" @click="$emit('update:sidebarOpen', false)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Projets
       </router-link>
-      <router-link to="/my-tasks" class="nav-item" active-class="active">
+      <router-link to="/my-tasks" class="nav-item" active-class="active" @click="$emit('update:sidebarOpen', false)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
         Mes tâches
         <span v-if="myTasksCount" class="count">{{ myTasksCount }}</span>
       </router-link>
-      <router-link to="/notifications" class="nav-item" active-class="active">
+      <router-link to="/notifications" class="nav-item" active-class="active" @click="$emit('update:sidebarOpen', false)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
         Notifications
         <span v-if="unreadNotifCount" class="count">{{ unreadNotifCount }}</span>
@@ -62,6 +62,7 @@
           :to="`/projects/${project.id}`"
           class="nav-item"
           active-class="active"
+          @click="$emit('update:sidebarOpen', false)"
         >
           <span class="project-dot" :style="{ background: colorFor(project.id) }"></span>
           {{ project.title }}
@@ -77,6 +78,7 @@
           :to="`/projects/${project.id}`"
           class="nav-item"
           active-class="active"
+          @click="$emit('update:sidebarOpen', false)"
         >
           <span class="project-dot" :style="{ background: colorFor(project.id) }"></span>
           {{ project.title }}
@@ -89,24 +91,25 @@
         :to="`/projects/${currentProjectId}/members`"
         class="nav-item"
         active-class="active"
+        @click="$emit('update:sidebarOpen', false)"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         Membres
       </router-link>
-      <router-link to="/projects" class="nav-item" style="color:var(--text-3); font-size:12.5px;">
+      <router-link to="/projects" class="nav-item" style="color:var(--text-3); font-size:12.5px;" @click="$emit('update:sidebarOpen', false)">
         Voir tous les projets →
       </router-link>
     </nav>
 
     <nav v-if="auth.isAdmin" class="nav-group">
       <span class="label">Administration</span>
-      <router-link to="/admin/users" class="nav-item" active-class="active">
+      <router-link to="/admin/users" class="nav-item" active-class="active" @click="$emit('update:sidebarOpen', false)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         Utilisateurs
       </router-link>
     </nav>
 
-    <router-link to="/profile" class="sidebar-foot" style="text-decoration:none; cursor:pointer;">
+    <router-link to="/profile" class="sidebar-foot" style="text-decoration:none; cursor:pointer;" @click="$emit('update:sidebarOpen', false)">
       <Avatar :user-id="auth.user?.id" :nom="auth.user?.nom" :avatar-url="auth.user?.avatar_url" :size="34" />
       <div>
         <div class="user-name">{{ auth.user?.nom }}</div>
